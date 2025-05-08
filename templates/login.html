@@ -1,0 +1,38 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Chat Login</title>
+    <!-- Link the external stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Web Chat Login</h2>
+        <p style="color: #666; margin-bottom: 25px; font-size: 0.95rem;">
+            Enter your Telegram username and the access code provided by the bot.
+        </p>
+
+        <!-- Display error messages -->
+        {% if error %}
+        <p class="error-message">{{ error }}</p>
+        {% endif %}
+
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="username">Telegram Username:</label>
+                <input type="text" id="username" name="username" placeholder="@your_telegram_handle" required autofocus>
+                 <!-- 'autofocus' puts the cursor here on load -->
+            </div>
+            <div class="form-group">
+                <label for="access_code">Access Code:</label>
+                <input type="text" id="access_code" name="access_code" placeholder="Paste code from Telegram bot" required>
+                 <!-- Changed type to text as hex codes aren't passwords in the traditional sense -->
+            </div>
+            <button type="submit" class="submit-button">Login</button>
+        </form>
+    </div>
+</body>
+</html>

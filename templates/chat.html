@@ -1,0 +1,127 @@
+<!-- templates/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ username }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Add Font Awesome for icons (optional, but nice for send button) -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> -->
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>Chat with <span class="username-highlight">@{{ username }}</span></h1>
+            <a href="/logout">Logout</a>
+        </header>
+
+        <div id="chatbox">
+            <!-- Messages will be loaded here initially by Jinja -->
+            {% for msg in messages %}
+            <div class="message {{ msg.sender }}">
+                 <!-- Optional: Add sender name for non-system messages if needed -->
+                 <!-- {% if msg.sender != 'system' %}<strong>{{ msg.sender }}:</strong><br>{% endif %} -->
+                {{ msg.text | safe }} {# Allow basic HTML if sent from Telegram, be cautious #}
+                <span class="timestamp">{{ msg.timestamp }}</span>
+            </div>
+            {% endfor %}
+            <!-- New messages via WebSocket will be appended here by JS -->
+        </div>
+
+        <footer class="chat-input-area">
+             <!-- Use the form for POST submission -->
+            <form action="/send_message" method="post" id="messageForm" style="display: contents;">
+                 <!-- 'display: contents' makes the form not interfere with flex layout of its parent -->
+                <input type="text" name="message" id="messageInput" placeholder="Type your message..." autocomplete="off" required>
+                <button type="submit" id="sendButton">
+                    Send
+                    <!-- Optional: Icon -> <i class="fas fa-paper-plane"></i> -->
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <!-- Keep the WebSocket JavaScript from the previous answer -->
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const messageInput = document.getElementById('messageInput');
+        const messageForm = document.getElementById('messageForm'); // Can still select the form
+        const chat_id = {{ chat_id }}; // Get chat_id from Jinja
+
+        // --- WebSocket Setup ---
+        const ws_protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const ws_url = `${ws_protocol}://${window.location.host}/ws/${chat_id}`;
+        let socket;
+
+        function connectWebSocket() {
+            console.log("Attempting to connect WebSocket to:", ws_url);
+            socket = new WebSocket(ws_url);
+
+            socket.onopen = function(event) {
+                console.log("WebSocket connection established.");
+            };
+
+            socket.onmessage = function(event) {
+                console.log("WebSocket message received:", event.data);
+                try {
+                    const messageData = JSON.parse(event.data);
+                    appendMessage(messageData);
+                } catch (e) {
+                    console.error("Failed to parse WebSocket message:", e);
+                }
+            };
+
+            socket.onerror = function(event) {
+                console.error("WebSocket error:", event);
+            };
+
+            socket.onclose = function(event) {
+                console.log("WebSocket connection closed:", event.code, event.reason);
+                 // Optionally add robust reconnect logic here
+            };
+        }
+
+        // --- Function to Add Messages to DOM ---
+        function appendMessage(msg) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(msg.sender); // 'user', 'admin', or 'system'
+
+            // Sanitize or carefully handle HTML in messages if needed
+            // Using textContent is safer if you don't expect/want HTML from users
+            messageDiv.appendChild(document.createTextNode(msg.text));
+
+            // Add timestamp
+            const timestampSpan = document.createElement('span');
+            timestampSpan.classList.add('timestamp');
+            timestampSpan.textContent = msg.timestamp; // Format if needed
+            messageDiv.appendChild(timestampSpan);
+
+            // Append the complete message bubble
+            chatbox.appendChild(messageDiv);
+
+            // Scroll to the bottom smoothly
+            scrollToBottom(true); // Pass true for smooth scroll
+        }
+
+        // --- Function to Scroll Chatbox ---
+        function scrollToBottom(smooth = false) {
+            if (smooth) {
+                 chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
+            } else {
+                 chatbox.scrollTop = chatbox.scrollHeight;
+            }
+        }
+
+        // --- Initial Setup ---
+        scrollToBottom(false); // Initial scroll (not smooth)
+        connectWebSocket();
+        messageInput.focus();
+
+        // Keep default form submission for sending admin messages for now
+        // If you change to sending via WS, update the onsubmit handler
+
+    </script>
+</body>
+</html>
