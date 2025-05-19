@@ -1,37 +1,37 @@
 <!-- templates/login.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru"> <!-- Изменено на "ru" -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Chat Login</title>
-    <!-- Link the external stylesheet -->
+    <title>Вход в веб-чат</title> <!-- Русифицировано -->
+    <!-- Подключение внешней таблицы стилей -->
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="login-container">
-        <h2>Web Chat Login</h2>
+        <h2>Вход в веб-чат</h2> <!-- Русифицировано -->
         <p style="color: #666; margin-bottom: 25px; font-size: 0.95rem;">
-            Enter your Telegram username and the access code provided by the bot.
+            Введите ваше имя пользователя Telegram и код доступа, полученный от бота. <!-- Русифицировано -->
         </p>
 
-        <!-- Display error messages -->
+        <!-- Отображение сообщений об ошибках -->
         {% if error %}
-        <p class="error-message">{{ error }}</p>
+        <p class="error-message">{{ error }}</p> <!-- Предполагается, что переменная 'error' уже содержит локализованный текст, если это необходимо -->
         {% endif %}
 
         <form action="/login" method="post">
             <div class="form-group">
-                <label for="username">Telegram Username:</label>
-                <input type="text" id="username" name="username" placeholder="@your_telegram_handle" required autofocus>
-                 <!-- 'autofocus' puts the cursor here on load -->
+                <label for="username">Имя пользователя Telegram:</label> <!-- Русифицировано -->
+                <input type="text" id="username" name="username" placeholder="@ваш_ник_в_telegram" required autofocus> <!-- Русифицировано -->
+                 <!-- 'autofocus' устанавливает курсор здесь при загрузке -->
             </div>
             <div class="form-group">
-                <label for="access_code">Access Code:</label>
-                <input type="text" id="access_code" name="access_code" placeholder="Paste code from Telegram bot" required>
-                 <!-- Changed type to text as hex codes aren't passwords in the traditional sense -->
+                <label for="access_code">Код доступа:</label> <!-- Русифицировано -->
+                <input type="text" id="access_code" name="access_code" placeholder="Вставьте код из Telegram-бота" required> <!-- Русифицировано -->
+                 <!-- Тип изменен на text, так как шестнадцатеричные коды не являются паролями в традиционном смысле -->
             </div>
-            <button type="submit" class="submit-button">Login</button>
+            <button type="submit" class="submit-button">Войти</button> <!-- Русифицировано -->
         </form>
     </div>
 </body>

@@ -1,111 +1,111 @@
 <!-- templates/chat.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru"> <!-- Изменено на "ru" -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with {{ username }}</title>
+    <title>Чат с {{ username }}</title> <!-- Русифицировано -->
     <link rel="stylesheet" href="/static/css/style.css">
-    <!-- Add Font Awesome for icons (optional, but nice for send button) -->
+    <!-- Добавить Font Awesome для иконок (необязательно, но хорошо для кнопки отправки) -->
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> -->
 </head>
 <body>
     <div class="chat-container">
         <header class="chat-header">
-            <h1>Chat with <span class="username-highlight">@{{ username }}</span></h1>
-            <a href="/logout">Logout</a>
+            <h1>Чат с <span class="username-highlight">@{{ username }}</span></h1> <!-- Русифицировано -->
+            <a href="/logout">Выйти</a> <!-- Русифицировано -->
         </header>
 
         <div id="chatbox">
-            <!-- Messages will be loaded here initially by Jinja -->
+            <!-- Сообщения будут загружены сюда изначально с помощью Jinja -->
             {% for msg in messages %}
             <div class="message {{ msg.sender }}">
-                 <!-- Optional: Add sender name for non-system messages if needed -->
+                 <!-- Опционально: Добавить имя отправителя для несистемных сообщений, если необходимо -->
                  <!-- {% if msg.sender != 'system' %}<strong>{{ msg.sender }}:</strong><br>{% endif %} -->
-                {{ msg.text | safe }} {# Allow basic HTML if sent from Telegram, be cautious #}
+                {{ msg.text | safe }} {# Разрешить базовый HTML, если отправлено из Telegram, будьте осторожны #}
                 <span class="timestamp">{{ msg.timestamp }}</span>
             </div>
             {% endfor %}
-            <!-- New messages via WebSocket will be appended here by JS -->
+            <!-- Новые сообщения через WebSocket будут добавлены сюда с помощью JS -->
         </div>
 
         <footer class="chat-input-area">
-             <!-- Use the form for POST submission -->
+             <!-- Использовать форму для POST-отправки -->
             <form action="/send_message" method="post" id="messageForm" style="display: contents;">
-                 <!-- 'display: contents' makes the form not interfere with flex layout of its parent -->
-                <input type="text" name="message" id="messageInput" placeholder="Type your message..." autocomplete="off" required>
+                 <!-- 'display: contents' позволяет форме не мешать flex-раскладке ее родителя -->
+                <input type="text" name="message" id="messageInput" placeholder="Введите ваше сообщение..." autocomplete="off" required> <!-- Русифицировано -->
                 <button type="submit" id="sendButton">
-                    Send
-                    <!-- Optional: Icon -> <i class="fas fa-paper-plane"></i> -->
+                    Отправить <!-- Русифицировано -->
+                    <!-- Опционально: Иконка -> <i class="fas fa-paper-plane"></i> -->
                 </button>
             </form>
         </footer>
     </div>
 
-    <!-- Keep the WebSocket JavaScript from the previous answer -->
+    <!-- Оставить JavaScript для WebSocket из предыдущего ответа -->
     <script>
         const chatbox = document.getElementById('chatbox');
         const messageInput = document.getElementById('messageInput');
-        const messageForm = document.getElementById('messageForm'); // Can still select the form
-        const chat_id = {{ chat_id }}; // Get chat_id from Jinja
+        const messageForm = document.getElementById('messageForm'); // Можно по-прежнему выбрать форму
+        const chat_id = {{ chat_id }}; // Получить chat_id из Jinja
 
-        // --- WebSocket Setup ---
+        // --- Настройка WebSocket ---
         const ws_protocol = window.location.protocol === "https:" ? "wss" : "ws";
         const ws_url = `${ws_protocol}://${window.location.host}/ws/${chat_id}`;
         let socket;
 
         function connectWebSocket() {
-            console.log("Attempting to connect WebSocket to:", ws_url);
+            console.log("Попытка подключиться к WebSocket по адресу:", ws_url); // Русифицировано
             socket = new WebSocket(ws_url);
 
             socket.onopen = function(event) {
-                console.log("WebSocket connection established.");
+                console.log("WebSocket-соединение установлено."); // Русифицировано
             };
 
             socket.onmessage = function(event) {
-                console.log("WebSocket message received:", event.data);
+                console.log("Получено WebSocket-сообщение:", event.data); // Русифицировано
                 try {
                     const messageData = JSON.parse(event.data);
                     appendMessage(messageData);
                 } catch (e) {
-                    console.error("Failed to parse WebSocket message:", e);
+                    console.error("Не удалось разобрать WebSocket-сообщение:", e); // Русифицировано
                 }
             };
 
             socket.onerror = function(event) {
-                console.error("WebSocket error:", event);
+                console.error("Ошибка WebSocket:", event); // Русифицировано
             };
 
             socket.onclose = function(event) {
-                console.log("WebSocket connection closed:", event.code, event.reason);
-                 // Optionally add robust reconnect logic here
+                console.log("WebSocket-соединение закрыто:", event.code, event.reason); // Русифицировано
+                 // Опционально добавьте сюда надежную логику переподключения
             };
         }
 
-        // --- Function to Add Messages to DOM ---
+        // --- Функция для добавления сообщений в DOM ---
         function appendMessage(msg) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            messageDiv.classList.add(msg.sender); // 'user', 'admin', or 'system'
+            messageDiv.classList.add(msg.sender); // 'user' (пользователь), 'admin' (администратор) или 'system' (система)
 
-            // Sanitize or carefully handle HTML in messages if needed
-            // Using textContent is safer if you don't expect/want HTML from users
+            // При необходимости очищайте или осторожно обрабатывайте HTML в сообщениях
+            // Использование textContent безопаснее, если вы не ожидаете/не хотите HTML от пользователей
             messageDiv.appendChild(document.createTextNode(msg.text));
 
-            // Add timestamp
+            // Добавить временную метку
             const timestampSpan = document.createElement('span');
             timestampSpan.classList.add('timestamp');
-            timestampSpan.textContent = msg.timestamp; // Format if needed
+            timestampSpan.textContent = msg.timestamp; // Отформатируйте при необходимости
             messageDiv.appendChild(timestampSpan);
 
-            // Append the complete message bubble
+            // Добавить полное сообщение
             chatbox.appendChild(messageDiv);
 
-            // Scroll to the bottom smoothly
-            scrollToBottom(true); // Pass true for smooth scroll
+            // Прокрутить вниз плавно
+            scrollToBottom(true); // Передайте true для плавной прокрутки
         }
 
-        // --- Function to Scroll Chatbox ---
+        // --- Функция для прокрутки чата ---
         function scrollToBottom(smooth = false) {
             if (smooth) {
                  chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
@@ -114,13 +114,13 @@
             }
         }
 
-        // --- Initial Setup ---
-        scrollToBottom(false); // Initial scroll (not smooth)
+        // --- Начальная настройка ---
+        scrollToBottom(false); // Начальная прокрутка (не плавная)
         connectWebSocket();
         messageInput.focus();
 
-        // Keep default form submission for sending admin messages for now
-        // If you change to sending via WS, update the onsubmit handler
+        // Пока оставить отправку формы по умолчанию для отправки сообщений администратора
+        // Если вы перейдете на отправку через WS, обновите обработчик onsubmit
 
     </script>
 </body>
